@@ -7,6 +7,11 @@
 ```not-persistent```
 ```auto recycling ```
 
+
+## support Type
+
+only support Pointer Slice and Map
+
 ## usage
 
 ```go
@@ -103,10 +108,6 @@ func main() {
 
 ```
 
-### support Type
-
-only support Pointer Slice and Map
-
 ### default config
 
 ```
@@ -127,11 +128,11 @@ if MaxRecords is reached.
 
 ```go
 //new instance
-lc,err := UReference.New()
+lf,err := UReference.New()
 if err != nil {
     panic(err.Error())
 }
-lc.SetMaxRecords(10000) //custom the max key-value pairs that can be kept in memory
+lf.SetMaxRecords(10000) //custom the max key-value pairs that can be kept in memory
 ```
 
 ## Benchmark
@@ -140,8 +141,8 @@ lc.SetMaxRecords(10000) //custom the max key-value pairs that can be kept in mem
 
 ```
 cpu: Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz
-BenchmarkLocalCache_SetPointer
-BenchmarkLocalCache_SetPointer-8   	 1000000	      1618 ns/op	     379 B/op	      10 allocs/op
+BenchmarkLocalReference_SetPointer
+BenchmarkLocalReference_SetPointer-8   	 1000000	      1618 ns/op	     379 B/op	      10 allocs/op
 PASS
 ```
 
@@ -149,7 +150,7 @@ PASS
 
 ```
 cpu: Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz
-BenchmarkLocalCache_GetPointer
-BenchmarkLocalCache_GetPointer-8   	 9931429	       129.7 ns/op	       0 B/op	       0 allocs/op
+BenchmarkLocalReference_GetPointer
+BenchmarkLocalReference_GetPointer-8   	 9931429	       129.7 ns/op	       0 B/op	       0 allocs/op
 PASS
 ```
