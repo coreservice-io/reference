@@ -20,7 +20,7 @@ func main() {
 
 	//set ""
 	v := "nothing value"
-	err := lf.Set("", &v, 300) //only support Point Slice and Map
+	err := lf.Set("", &v, 300) //only support Pointer Slice and Map
 	if err != nil {
 		log.Fatalln("UReference set error:", err)
 	}
