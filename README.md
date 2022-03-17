@@ -22,8 +22,10 @@ import (
 package main
 
 import (
-	"github.com/coreservice-io/UReference"
 	"log"
+	"time"
+
+	"github.com/coreservice-io/UReference"
 )
 
 type Person struct {
@@ -33,43 +35,77 @@ type Person struct {
 }
 
 func main() {
-	 
-	lc := UReference.New()  //new a UReference instance with default config
-	lc.SetMaxRecords(10000)
 
-	//set
-	lc.Set("foo", "bar", 300)
-	lc.Set("a", 1, 300)
-	lc.Set("b", Person{"Jack", 18, "London"}, 300)
-	lc.Set("b*", &Person{"Jack", 18, "London"}, 300)
-	lc.Set("c", true, 100)
+	lf := UReference.New()
+	lf.SetMaxRecords(10000)
 
-	//get
-	value, ttlLeft, exist := lc.Get("foo")
-	if exist {
-		//value type is interface{}, please convert to the right type before usage
-		valueStr, ok := value.(string)
-		if ok {
-			log.Println("key:foo, value:", valueStr)
-		}
-		log.Println("key:foo, ttl:", ttlLeft)
+	//set ""
+	v := "nothing value"
+	err := lf.Set("", &v, 300) //only support Point Slice and Map
+	if err != nil {
+		log.Fatalln("UReference set error:", err)
+	}
+	//get ""
+	valuen, ttl, okn := lf.Get("")
+	if okn {
+		log.Println("key:nothing value:", valuen.(*string), "ttl:", ttl)
+	}
+
+	//set slice
+	err = lf.Set("slice", []int{1, 2, 3}, 300)
+	if err != nil {
+		log.Fatalln("UReference set error:", err)
+	}
+
+	//set struct pointer
+	err = lf.Set("struct*", &Person{"Jack", 18, "London"}, 300)
+	if err != nil {
+		log.Fatalln("UReference set error:", err)
+	}
+
+	//set map
+	err = lf.Set("map", map[string]int{"a": 1, "b": 2}, 100)
+	if err != nil {
+		log.Fatalln("UReference set error:", err)
 	}
 
 	//get
 	log.Println("---get---")
-	log.Println(lc.Get("foo"))
-	log.Println(lc.Get("a"))
-	log.Println(lc.Get("b"))
-	log.Println(lc.Get("b*"))
-	log.Println(lc.Get("c"))
+	log.Println(lf.Get("slice"))
+	log.Println(lf.Get("struct*"))
+	log.Println(lf.Get("map"))
 
 	//overwrite
 	log.Println("---set overwrite---")
-	log.Println(lc.Get("c"))
-	lc.Set("c", false, 60)
-	log.Println(lc.Get("c"))
+	log.Println(lf.Get("struct*"))
+	err = lf.Set("struct*", &Person{"Tom", 38, "London"}, 10)
+	if err != nil {
+		log.Fatalln("UReference set error:", err)
+	}
+	log.Println(lf.Get("struct*"))
+
+	//test ttl
+	go func() {
+		for {
+			time.Sleep(2 * time.Second)
+			log.Println(lf.Get("struct*"))
+		}
+	}()
+
+	time.Sleep(20 * time.Second)
+
+	//if not a pointer cause error
+	err = lf.Set("int", 10, 10)
+	if err != nil {
+		log.Fatalln("UReference set error:", err)
+	}
 }
+
 ```
+
+### support Type
+
+only support Pointer Slice and Map
 
 ### default config
 
