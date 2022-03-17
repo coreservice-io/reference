@@ -343,7 +343,7 @@ func Test_SyncMap(t *testing.T) {
 	}
 }
 
-func BenchmarkLocalCache_SetPointer(b *testing.B) {
+func BenchmarkLocalRef_SetPointer(b *testing.B) {
 	lc := New()
 	a := &Person{"Jack", 18, "America"}
 	b.ReportAllocs()
@@ -353,7 +353,7 @@ func BenchmarkLocalCache_SetPointer(b *testing.B) {
 	}
 }
 
-func BenchmarkLocalCache_SetStruct(b *testing.B) {
+func BenchmarkLocalRef_SetStruct(b *testing.B) {
 	lc := New()
 	a := Person{"Jack", 18, "America"}
 	b.ReportAllocs()
@@ -363,7 +363,7 @@ func BenchmarkLocalCache_SetStruct(b *testing.B) {
 	}
 }
 
-func BenchmarkLocalCache_GetPointer(b *testing.B) {
+func BenchmarkLocalRef_GetPointer(b *testing.B) {
 	lc := New()
 	a := &Person{"Jack", 18, "America"}
 	lc.Set("1", a, 300)
@@ -378,7 +378,7 @@ func BenchmarkLocalCache_GetPointer(b *testing.B) {
 
 }
 
-func BenchmarkLocalCache_GetStruct(b *testing.B) {
+func BenchmarkLocalRef_GetStruct(b *testing.B) {
 	lc := New()
 	a := Person{"Jack", 18, "America"}
 	lc.Set("1", a, 300)

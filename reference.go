@@ -16,32 +16,32 @@ const (
 	RecycleOverLimitRatio = 0.5
 )
 
-type Cache struct {
+type Reference struct {
 	s     *sortedset.SortedSet
 	limit int64
 }
 
-func New() *Cache {
-	cache := &Cache{
+func New() *Reference {
+	ref := &Reference{
 		s:     sortedset.Make(),
 		limit: MaxRecords,
 	}
 
-	cache.Recycle()
-	return cache
+	ref.Recycle()
+	return ref
 }
 
 //RecycleOverLimitRatio of records will be recycled if the number of total keys exceeds this limit
-func (lc *Cache) SetMaxRecords(limit int64) {
+func (lf *Reference) SetMaxRecords(limit int64) {
 	if limit < MinRecords {
 		limit = MinRecords
 	}
-	lc.limit = limit
+	lf.limit = limit
 }
 
-func (lc *Cache) Get(key string) (value interface{}, ttl int64, exist bool) {
+func (lf *Reference) Get(key string) (value interface{}, ttl int64, exist bool) {
 	//check expire
-	e, exist := lc.s.Get(key)
+	e, exist := lf.s.Get(key)
 	if !exist {
 		return nil, 0, false
 	}
@@ -56,7 +56,7 @@ func (lc *Cache) Get(key string) (value interface{}, ttl int64, exist bool) {
 //ttl is set to MaxTTLSecs if ttl > MaxTTLSecs
 //if record exist , "0" ttl changes nothing
 //if record not exist, "0" ttl is equal to "30" seconds
-func (lc *Cache) Set(key string, value interface{}, ttlSecond int64) error {
+func (lf *Reference) Set(key string, value interface{}, ttlSecond int64) error {
 	if value == nil {
 		return errors.New("value can not be nil")
 	}
@@ -76,7 +76,7 @@ func (lc *Cache) Set(key string, value interface{}, ttlSecond int64) error {
 
 	if ttlSecond == 0 {
 		//keep
-		ttlLeft, exist := lc.ttl(key)
+		ttlLeft, exist := lf.ttl(key)
 		if !exist {
 			ttlLeft = 30
 		}
@@ -85,17 +85,17 @@ func (lc *Cache) Set(key string, value interface{}, ttlSecond int64) error {
 		//new expire
 		expireTime = time.Now().Unix() + ttlSecond
 	}
-	lc.s.Add(key, expireTime, value)
+	lf.s.Add(key, expireTime, value)
 	return nil
 }
 
-func (lc *Cache) Delete(key string) {
-	lc.s.Remove(key)
+func (lf *Reference) Delete(key string) {
+	lf.s.Remove(key)
 }
 
 // get ttl of a key in seconds
-func (lc *Cache) ttl(key string) (int64, bool) {
-	e, exist := lc.s.Get(key)
+func (lf *Reference) ttl(key string) (int64, bool) {
+	e, exist := lf.s.Get(key)
 	if !exist {
 		return 0, false
 	}
@@ -106,31 +106,31 @@ func (lc *Cache) ttl(key string) (int64, bool) {
 	return ttl, true
 }
 
-func (lc *Cache) Recycle() {
+func (lf *Reference) Recycle() {
 	time.Sleep(500 * time.Millisecond)
 	safeInfiLoop(func() {
 		//remove expired keys
-		lc.s.RemoveByScore(time.Now().Unix())
+		lf.s.RemoveByScore(time.Now().Unix())
 		//check overlimit
-		if lc.s.Len() >= lc.limit {
-			deleteCount := (lc.s.Len() - lc.limit) + int64(float64(lc.limit)*RecycleOverLimitRatio)
-			lc.s.RemoveByRank(0, int64(deleteCount))
+		if lf.s.Len() >= lf.limit {
+			deleteCount := (lf.s.Len() - lf.limit) + int64(float64(lf.limit)*RecycleOverLimitRatio)
+			lf.s.RemoveByRank(0, int64(deleteCount))
 		}
 	}, nil, RecycleIntervalSecs, 60)
 }
 
-func (lc *Cache) GetLen() int64 {
-	return lc.s.Len()
+func (lf *Reference) GetLen() int64 {
+	return lf.s.Len()
 }
 
-func (lc *Cache) SetRand(key string, ttlSecond int64) string {
+func (lf *Reference) SetRand(key string, ttlSecond int64) string {
 	rs := GenRandStr(20)
-	lc.Set(key, rs, ttlSecond)
+	lf.Set(key, rs, ttlSecond)
 	return rs
 }
 
-func (lc *Cache) GetRand(key string) string {
-	v, _, exist := lc.Get(key)
+func (lf *Reference) GetRand(key string) string {
+	v, _, exist := lf.Get(key)
 	if !exist {
 		return ""
 	}
