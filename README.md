@@ -7,10 +7,13 @@
 ```not-persistent```
 ```auto recycling ```
 
+## Description
+UReference is a reference system , it is not a cache system
+so the value can only be reference type and not deep copy won't happen
+in set process
 
 ## support Type
-
-only support Pointer Slice and Map
+value type can only be Pointer/Slice/Map
 
 ## usage
 
