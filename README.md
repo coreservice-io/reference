@@ -40,7 +40,7 @@ import (
 
 type Person struct {
 	Name     string
-	Age      int
+	Age      int32
 	Location string
 }
 

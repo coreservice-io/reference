@@ -16,14 +16,14 @@ const (
 
 var randsrc = rand.NewSource(time.Now().UnixNano())
 
-func GenRandStr(n int) string {
+func GenRandStr(n int64) string {
 	b := make([]byte, n)
 	// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
 	for i, cache, remain := n-1, randsrc.Int63(), letterIdxMax; i >= 0; {
 		if remain == 0 {
 			cache, remain = randsrc.Int63(), letterIdxMax
 		}
-		if idx := int(cache & letterIdxMask); idx < letterBytes_len {
+		if idx := cache & letterIdxMask; idx < int64(letterBytes_len) {
 			b[i] = letterBytes[idx]
 			i--
 		}

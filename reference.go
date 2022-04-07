@@ -137,7 +137,7 @@ func (lf *Reference) GetRand(key string) string {
 	return v.(string)
 }
 
-func safeInfiLoop(todo func(), onPanic func(err interface{}), interval int, redoDelaySec int) {
+func safeInfiLoop(todo func(), onPanic func(err interface{}), interval int64, redoDelaySec int64) {
 	runChannel := make(chan struct{})
 	go func() {
 		for {
