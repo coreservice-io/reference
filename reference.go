@@ -1,11 +1,11 @@
-package UReference
+package reference
 
 import (
 	"errors"
 	"reflect"
 	"time"
 
-	"github.com/coreservice-io/UReference/sortedset"
+	"github.com/coreservice-io/reference/sortedset"
 )
 
 const (

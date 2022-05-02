@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/coreservice-io/UReference"
+	"github.com/coreservice-io/reference"
 )
 
 type Person struct {
@@ -15,14 +15,14 @@ type Person struct {
 
 func main() {
 
-	lf := UReference.New()
+	lf := reference.New()
 	lf.SetMaxRecords(10000)
 
 	//set ""
 	v := "nothing value"
 	err := lf.Set("", &v, 300) //only support Pointer Slice and Map
 	if err != nil {
-		log.Fatalln("UReference set error:", err)
+		log.Fatalln("reference set error:", err)
 	}
 	//get ""
 	valuen, ttl, okn := lf.Get("")
@@ -33,19 +33,19 @@ func main() {
 	//set slice
 	err = lf.Set("slice", []int{1, 2, 3}, 300)
 	if err != nil {
-		log.Fatalln("UReference set error:", err)
+		log.Fatalln("reference set error:", err)
 	}
 
 	//set struct pointer
 	err = lf.Set("struct*", &Person{"Jack", 18, "London"}, 300)
 	if err != nil {
-		log.Fatalln("UReference set error:", err)
+		log.Fatalln("reference set error:", err)
 	}
 
 	//set map
 	err = lf.Set("map", map[string]int{"a": 1, "b": 2}, 100)
 	if err != nil {
-		log.Fatalln("UReference set error:", err)
+		log.Fatalln("reference set error:", err)
 	}
 
 	//get
@@ -59,7 +59,7 @@ func main() {
 	log.Println(lf.Get("struct*"))
 	err = lf.Set("struct*", &Person{"Tom", 38, "London"}, 10)
 	if err != nil {
-		log.Fatalln("UReference set error:", err)
+		log.Fatalln("reference set error:", err)
 	}
 	log.Println(lf.Get("struct*"))
 
@@ -76,6 +76,6 @@ func main() {
 	//if not a pointer cause error
 	err = lf.Set("int", 10, 10)
 	if err != nil {
-		log.Fatalln("UReference set error:", err)
+		log.Fatalln("reference set error:", err)
 	}
 }

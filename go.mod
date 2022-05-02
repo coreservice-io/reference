@@ -1,3 +1,3 @@
-module github.com/coreservice-io/UReference
+module github.com/coreservice-io/reference
 
 go 1.17
