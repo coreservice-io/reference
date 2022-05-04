@@ -56,8 +56,8 @@ func main() {
 		log.Fatalln("reference set error:", err)
 	}
 	//get ""
-	valuen, ttl, okn := lf.Get("")
-	if okn {
+	valuen, ttl := lf.Get("")
+	if valuen != nil {
 		log.Println("key:nothing value:", valuen.(*string), "ttl:", ttl)
 	}
 

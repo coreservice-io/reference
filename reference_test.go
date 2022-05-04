@@ -42,8 +42,8 @@ func Test_Get(t *testing.T) {
 	}
 
 	for i := 0; i < 110000; i += 1000 {
-		v, ttl, exist := lc.Get(strconv.Itoa(i))
-		if !exist {
+		v, ttl := lc.Get(strconv.Itoa(i))
+		if v == nil {
 			log.Println("key:", strconv.Itoa(i), "not exist")
 		} else {
 			log.Println(strconv.Itoa(i), v, ttl)
@@ -57,20 +57,20 @@ func Test_Delete(t *testing.T) {
 	lc.Set("a", a, 5)
 	lc.Set("b", a, 5)
 
-	v, ttl, exist := lc.Get("a")
+	v, ttl := lc.Get("a")
 	log.Println("get a")
-	log.Println(v, ttl, exist)
+	log.Println(v, ttl)
 
 	log.Println("delete a")
 	lc.Delete("a")
 
-	v, ttl, exist = lc.Get("a")
+	v, ttl = lc.Get("a")
 	log.Println("get a")
-	log.Println(v, ttl, exist)
+	log.Println(v, ttl)
 
-	v, ttl, exist = lc.Get("b")
+	v, ttl = lc.Get("b")
 	log.Println("get b")
-	log.Println(v, ttl, exist)
+	log.Println(v, ttl)
 
 	log.Println("origin a")
 	log.Println(*a)
@@ -89,18 +89,18 @@ func Test_Expire(t *testing.T) {
 
 	count := 0
 	for {
-		v, ttl, ok := lc.Get("1")
-		log.Printf("1==>%v %v %v", v, ttl, ok)
-		v, ttl, ok = lc.Get("2")
-		log.Printf("2==>%v %v %v", v, ttl, ok)
-		v, ttl, ok = lc.Get("3")
-		log.Printf("3==>%v %v %v", v, ttl, ok)
-		v, ttl, ok = lc.Get("4")
-		log.Printf("4==>%v %v %v", v, ttl, ok)
-		v, ttl, ok = lc.Get("5")
-		log.Printf("5==>%v %v %v", v, ttl, ok)
-		v, ttl, ok = lc.Get("6")
-		log.Printf("6==>%v %v %v", v, ttl, ok)
+		v, ttl := lc.Get("1")
+		log.Printf("1==>%v %v", v, ttl)
+		v, ttl = lc.Get("2")
+		log.Printf("2==>%v %v", v, ttl)
+		v, ttl = lc.Get("3")
+		log.Printf("3==>%v %v", v, ttl)
+		v, ttl = lc.Get("4")
+		log.Printf("4==>%v %v", v, ttl)
+		v, ttl = lc.Get("5")
+		log.Printf("5==>%v %v", v, ttl)
+		v, ttl = lc.Get("6")
+		log.Printf("6==>%v %v", v, ttl)
 		log.Println("total key", lc.GetLen())
 		log.Println("-----------")
 		count++
@@ -205,16 +205,16 @@ func Test_RandSet(t *testing.T) {
 	lc.Set("e", a, 65)
 
 	log.Println("before big amount set")
-	v, ttl, ok := lc.Get("a")
-	log.Printf("a==>%v %v %v", v, ttl, ok)
-	v, ttl, ok = lc.Get("b")
-	log.Printf("b==>%v %v %v", v, ttl, ok)
-	v, ttl, ok = lc.Get("c")
-	log.Printf("c==>%v %v %v", v, ttl, ok)
-	v, ttl, ok = lc.Get("d")
-	log.Printf("d==>%v %v %v", v, ttl, ok)
-	v, ttl, ok = lc.Get("e")
-	log.Printf("e==>%v %v %v", v, ttl, ok)
+	v, ttl := lc.Get("a")
+	log.Printf("a==>%v %v", v, ttl)
+	v, ttl = lc.Get("b")
+	log.Printf("b==>%v %v", v, ttl)
+	v, ttl = lc.Get("c")
+	log.Printf("c==>%v %v", v, ttl)
+	v, ttl = lc.Get("d")
+	log.Printf("d==>%v %v", v, ttl)
+	v, ttl = lc.Get("e")
+	log.Printf("e==>%v %v", v, ttl)
 
 	log.Println("start amount set")
 	for i := 0; i < 200; i++ {
@@ -228,16 +228,16 @@ func Test_RandSet(t *testing.T) {
 	for i := 0; i < 70; i++ {
 		time.Sleep(time.Second)
 		log.Println("--------------")
-		v, ttl, ok = lc.Get("a")
-		log.Printf("a==>%v %v %v", v, ttl, ok)
-		v, ttl, ok = lc.Get("b")
-		log.Printf("b==>%v %v %v", v, ttl, ok)
-		v, ttl, ok = lc.Get("c")
-		log.Printf("c==>%v %v %v", v, ttl, ok)
-		v, ttl, ok = lc.Get("d")
-		log.Printf("d==>%v %v %v", v, ttl, ok)
-		v, ttl, ok = lc.Get("e")
-		log.Printf("e==>%v %v %v", v, ttl, ok)
+		v, ttl = lc.Get("a")
+		log.Printf("a==>%v %v", v, ttl)
+		v, ttl = lc.Get("b")
+		log.Printf("b==>%v %v", v, ttl)
+		v, ttl = lc.Get("c")
+		log.Printf("c==>%v %v", v, ttl)
+		v, ttl = lc.Get("d")
+		log.Printf("d==>%v %v", v, ttl)
+		v, ttl = lc.Get("e")
+		log.Printf("e==>%v %v", v, ttl)
 		log.Println("total key", lc.GetLen())
 	}
 }
@@ -252,12 +252,12 @@ func Test_KeepTTL(t *testing.T) {
 	lc.Set("c", a, 50)
 
 	//log
-	v, ttl, ok := lc.Get("a")
-	log.Printf("a==>%v %v %v", v, ttl, ok)
-	v, ttl, ok = lc.Get("b")
-	log.Printf("b==>%v %v %v", v, ttl, ok)
-	v, ttl, ok = lc.Get("c")
-	log.Printf("c==>%v %v %v", v, ttl, ok)
+	v, ttl := lc.Get("a")
+	log.Printf("a==>%v %v", v, ttl)
+	v, ttl = lc.Get("b")
+	log.Printf("b==>%v %v", v, ttl)
+	v, ttl = lc.Get("c")
+	log.Printf("c==>%v %v", v, ttl)
 
 	time.Sleep(5 * time.Second)
 
@@ -267,12 +267,12 @@ func Test_KeepTTL(t *testing.T) {
 	//log
 	for i := 0; i < 10; i++ {
 		log.Println("-----------")
-		v, ttl, ok = lc.Get("a")
-		log.Printf("a==>%v %v %v", v, ttl, ok)
-		v, ttl, ok = lc.Get("b")
-		log.Printf("b==>%v %v %v", v, ttl, ok)
-		v, ttl, ok = lc.Get("c")
-		log.Printf("c==>%v %v %v", v, ttl, ok)
+		v, ttl = lc.Get("a")
+		log.Printf("a==>%v %v", v, ttl)
+		v, ttl = lc.Get("b")
+		log.Printf("b==>%v %v", v, ttl)
+		v, ttl = lc.Get("c")
+		log.Printf("c==>%v %v", v, ttl)
 		time.Sleep(time.Second)
 	}
 
@@ -292,8 +292,8 @@ func Test_SetTTL(t *testing.T) {
 		log.Println("-----------")
 		for j := 0; j < 10; j++ {
 			key := strconv.Itoa(j)
-			v, ttl, ok := lc.Get(key)
-			log.Printf("%s==>%v %v %v", key, v, ttl, ok)
+			v, ttl := lc.Get(key)
+			log.Printf("%s==>%v %v", key, v, ttl)
 		}
 		log.Println("total key", lc.GetLen())
 		time.Sleep(time.Second)
@@ -372,7 +372,7 @@ func BenchmarkLocalReference_GetPointer(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		it, _, _ := lc.Get("1")
+		it, _ := lc.Get("1")
 		e = it.(*Person)
 	}
 
@@ -386,7 +386,7 @@ func BenchmarkLocalReference_GetStruct(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		it, _, _ := lc.Get("1")
+		it, _ := lc.Get("1")
 		e = it.(Person)
 	}
 	log.Println(e)

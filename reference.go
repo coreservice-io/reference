@@ -39,17 +39,19 @@ func (lf *Reference) SetMaxRecords(limit int64) {
 	lf.limit = limit
 }
 
-func (lf *Reference) Get(key string) (value interface{}, ttl int64, exist bool) {
+//if not found or timeout => return nil,0
+//if found and not timeout =>return not_nil_pointer,left_secs
+func (lf *Reference) Get(key string) (value interface{}, ttl int64) {
 	//check expire
 	e, exist := lf.s.Get(key)
 	if !exist {
-		return nil, 0, false
+		return nil, 0
 	}
 	nowTime := time.Now().Unix()
 	if e.Score <= nowTime {
-		return nil, 0, false
+		return nil, 0
 	}
-	return e.Value, e.Score - nowTime, true
+	return e.Value, e.Score - nowTime
 }
 
 //if ttl < 0 just return and nothing changes
@@ -130,8 +132,8 @@ func (lf *Reference) SetRand(key string, ttlSecond int64) string {
 }
 
 func (lf *Reference) GetRand(key string) string {
-	v, _, exist := lf.Get(key)
-	if !exist {
+	v, _ := lf.Get(key)
+	if v == nil {
 		return ""
 	}
 	return v.(string)
