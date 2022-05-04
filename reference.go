@@ -57,9 +57,9 @@ func (lf *Reference) Get(key string) (value interface{}, ttl int64, exist bool) 
 //if record exist , "0" ttl changes nothing
 //if record not exist, "0" ttl is equal to "30" seconds
 func (lf *Reference) Set(key string, value interface{}, ttlSecond int64) error {
-	// if value == nil {
-	// 	return errors.New("value can not be nil")
-	// }
+	if value == nil {
+		return errors.New("value can not be nil")
+	}
 	if ttlSecond < 0 {
 		return errors.New("ttl error")
 	}
