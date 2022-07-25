@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/coreservice-io/reference"
@@ -62,6 +63,41 @@ func main() {
 		log.Fatalln("reference set error:", err)
 	}
 	log.Println(lf.Get("struct*"))
+
+	for i := 0; i < 10000; i++ {
+		a := i
+		go func() {
+			for {
+				err := lf.Set(strconv.Itoa(a), &Person{"Tom", 38, "London"}, 10)
+				if err != nil {
+					log.Println("err:", err)
+				}
+				err = lf.Set(strconv.Itoa(a)+"b", &Person{"Tom777", 38, "London777"}, 10)
+				if err != nil {
+					log.Println("err:", err)
+				}
+			}
+		}()
+	}
+
+	for i := 0; i < 10000; i++ {
+		a := i
+		go func() {
+			for {
+				lf.Get(strconv.Itoa(a))
+				//log.Println("value:", v, "ttl:", ttl)
+				lf.Get(strconv.Itoa(a) + "b")
+				//log.Println("value:", v, "ttl:", ttl)
+				lf.Delete(strconv.Itoa(a))
+				lf.Delete(strconv.Itoa(a) + "b")
+			}
+		}()
+	}
+
+	for {
+		log.Println("running")
+		time.Sleep(5 * time.Second)
+	}
 
 	//test ttl
 	go func() {

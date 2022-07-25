@@ -122,7 +122,7 @@ func (lf *Reference) Recycle() {
 }
 
 func (lf *Reference) GetLen() int64 {
-	return lf.s.Len()
+	return int64(lf.s.Len())
 }
 
 func (lf *Reference) SetRand(key string, ttlSecond int64) string {

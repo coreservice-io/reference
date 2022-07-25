@@ -6,13 +6,14 @@ import (
 )
 
 // SortedSet is a set which keys sorted by bound score
-type SortedSet struct {
-	dict     sync.Map
-	skiplist *skiplist
 
-	elementCount int64
-	lock         sync.Mutex
-	slChannel    chan func()
+type SortedSet struct {
+	elementCount int32
+	dict         sync.Map
+	skiplist     *skiplist
+
+	lock      sync.Mutex
+	slChannel chan func()
 }
 
 // Make makes a new SortedSet
@@ -47,7 +48,7 @@ func (sortedSet *SortedSet) Add(member string, score int64, value interface{}) {
 		Value: value,
 	})
 	if !exist {
-		atomic.AddInt64(&sortedSet.elementCount, 1)
+		atomic.AddInt32(&sortedSet.elementCount, 1)
 		//log.Println("count after add", sortedSet.elementCount)
 		fc := func() {
 			sortedSet.skiplist.insert(member, score)
@@ -71,7 +72,7 @@ func (sortedSet *SortedSet) Remove(member string) {
 	if !exist {
 		return
 	}
-	atomic.AddInt64(&sortedSet.elementCount, -1)
+	atomic.AddInt32(&sortedSet.elementCount, -1)
 	elementScore := element.(*Element).Score
 	fc := func() {
 		sortedSet.skiplist.remove(member, elementScore)
@@ -82,10 +83,10 @@ func (sortedSet *SortedSet) Remove(member string) {
 
 // Len returns number of members in set
 func (sortedSet *SortedSet) Len() int64 {
-	return sortedSet.elementCount
+	return int64(sortedSet.elementCount)
 }
 
-func (sortedSet *SortedSet) SLen() int64 {
+func (sortedSet *SortedSet) SLen() int32 {
 	return sortedSet.skiplist.length
 }
 

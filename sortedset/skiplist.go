@@ -33,7 +33,7 @@ type node struct {
 type skiplist struct {
 	header *node
 	tail   *node
-	length int64
+	length int32
 	level  int16
 	lock   sync.Mutex
 }
@@ -98,7 +98,7 @@ func (skiplist *skiplist) insert(member string, score int64) {
 		for i := skiplist.level; i < level; i++ {
 			rank[i] = 0
 			update[i] = skiplist.header
-			update[i].level[i].span = skiplist.length
+			update[i].level[i].span = int64(skiplist.length)
 		}
 		skiplist.level = level
 	}
