@@ -19,21 +19,21 @@ const (
 type Reference struct {
 	s           *sortedset.SortedSet
 	limit       int64
-	nowTimeunix int64
+	now_unixtime int64
 }
 
 func New() *Reference {
 	ref := &Reference{
 		s:           sortedset.Make(),
 		limit:       MaxRecords,
-		nowTimeunix: time.Now().Unix(),
+		now_unixtime: time.Now().Unix(),
 	}
 
 	ref.Recycle()
 	go func() {
 		for {
 			time.Sleep(1 * time.Second)
-			ref.nowTimeunix = time.Now().Unix()
+			ref.now_unixtime = time.Now().Unix()
 		}
 	}()
 
@@ -48,6 +48,11 @@ func (lf *Reference) SetMaxRecords(limit int64) {
 	lf.limit = limit
 }
 
+// get current unix time in reference
+func (lf *Reference) GetUnixTime() int64 {
+	return lf.now_unixtime
+}
+
 // if not found or timeout => return nil,0
 // if found and not timeout =>return not_nil_pointer,left_secs
 func (lf *Reference) Get(key string) (value interface{}, ttl int64) {
@@ -56,7 +61,7 @@ func (lf *Reference) Get(key string) (value interface{}, ttl int64) {
 	if !exist {
 		return nil, 0
 	}
-	if e.Score <= lf.nowTimeunix {
+	if e.Score <= lf.now_unixtime {
 		return nil, 0
 	}
 	return e.Value, 1
@@ -90,10 +95,10 @@ func (lf *Reference) Set(key string, value interface{}, ttlSecond int64) error {
 		if !exist {
 			ttlLeft = 30
 		}
-		expireTime = lf.nowTimeunix + ttlLeft
+		expireTime = lf.now_unixtime + ttlLeft
 	} else {
 		//new expire
-		expireTime = lf.nowTimeunix + ttlSecond
+		expireTime = lf.now_unixtime + ttlSecond
 	}
 	lf.s.Add(key, expireTime, value)
 	return nil
@@ -109,7 +114,7 @@ func (lf *Reference) ttl(key string) (int64, bool) {
 	if !exist {
 		return 0, false
 	}
-	ttl := e.Score - lf.nowTimeunix
+	ttl := e.Score - lf.now_unixtime
 	if ttl <= 0 {
 		return 0, false
 	}
@@ -120,7 +125,7 @@ func (lf *Reference) Recycle() {
 	time.Sleep(500 * time.Millisecond)
 	safeInfiLoop(func() {
 		//remove expired keys
-		lf.s.RemoveByScore(lf.nowTimeunix)
+		lf.s.RemoveByScore(lf.now_unixtime)
 		//check overlimit
 		if lf.s.Len() >= lf.limit {
 			deleteCount := (lf.s.Len() - lf.limit) + int64(float64(lf.limit)*RecycleOverLimitRatio)
