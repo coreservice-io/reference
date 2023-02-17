@@ -64,7 +64,7 @@ func (lf *Reference) Get(key string) (value interface{}, ttl int64) {
 	if e.Score <= lf.now_unixtime {
 		return nil, 0
 	}
-	return e.Value, 1
+	return e.Value, e.Score - lf.now_unixtime
 }
 
 // if ttl < 0 just return and nothing changes
