@@ -116,7 +116,7 @@ func main() {
 ### default config
 
 ```
-MaxRecords(*)         = 1000000
+MaxRecords(*)         = 5000000
 MinRecords            = 10000
 MaxTTLSecs            = 7200
 RecycleIntervalSecs   = 5
@@ -147,7 +147,7 @@ lf.SetMaxRecords(10000) //custom the max key-value pairs that can be kept in mem
 ```
 cpu: Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz
 BenchmarkLocalReference_SetPointer
-BenchmarkLocalReference_SetPointer-8   	 1000000	      1618 ns/op	     379 B/op	      10 allocs/op
+BenchmarkLocalReference_SetPointer-8   	 1000000	      1495 ns/op	     347 B/op	      9 allocs/op
 PASS
 ```
 
@@ -156,6 +156,6 @@ PASS
 ```
 cpu: Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz
 BenchmarkLocalReference_GetPointer
-BenchmarkLocalReference_GetPointer-8   	 9931429	       129.7 ns/op	       0 B/op	       0 allocs/op
+BenchmarkLocalReference_GetPointer-8   	 9931429	       28.48 ns/op	       0 B/op	       0 allocs/op
 PASS
 ```
