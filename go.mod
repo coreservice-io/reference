@@ -1,3 +1,3 @@
 module github.com/coreservice-io/reference
 
-go 1.17
+go 1.19

@@ -23,34 +23,6 @@ func printMemStats() {
 	log.Printf("Alloc = %v KB, TotalAlloc = %v KB, Sys = %v KB,Lookups = %v NumGC = %v\n", m.Alloc/1024, m.TotalAlloc/1024, m.Sys/1024, m.Lookups, m.NumGC)
 }
 
-func Test_Set(t *testing.T) {
-	lc := New()
-	for i := 0; i < 100000; i++ {
-		lc.Set(strconv.Itoa(i), "foo", 60)
-	}
-
-	for i := 0; i < 100000; i += 1000 {
-		log.Println(lc.Get(strconv.Itoa(i)))
-	}
-
-}
-
-func Test_Get(t *testing.T) {
-	lc := New()
-	for i := 0; i < 100000; i++ {
-		lc.Set(strconv.Itoa(i), "foo", 60)
-	}
-
-	for i := 0; i < 110000; i += 1000 {
-		v, ttl := lc.Get(strconv.Itoa(i))
-		if v == nil {
-			log.Println("key:", strconv.Itoa(i), "not exist")
-		} else {
-			log.Println(strconv.Itoa(i), v, ttl)
-		}
-	}
-}
-
 func Test_Delete(t *testing.T) {
 	lc := New()
 	a := &Person{"Jack", 18, "London"}
@@ -181,17 +153,6 @@ func Test_BigAmountKey(t *testing.T) {
 		}
 	}
 	//time.Sleep(1*time.Hour)
-}
-
-func Test_RandStr(t *testing.T) {
-	lc := New()
-
-	log.Println(lc.SetRand("abc", 5))
-
-	for {
-		log.Println(lc.GetRand("abc"))
-		time.Sleep(1 * time.Second)
-	}
 }
 
 func Test_RandSet(t *testing.T) {
@@ -346,20 +307,15 @@ func Test_SyncMap(t *testing.T) {
 func BenchmarkLocalReference_SetPointer(b *testing.B) {
 	lc := New()
 	a := &Person{"Jack", 18, "America"}
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		lc.Set(strconv.Itoa(i), a, 300)
-	}
-}
 
-func BenchmarkLocalReference_SetStruct(b *testing.B) {
-	lc := New()
-	a := Person{"Jack", 18, "America"}
+	keyArray:=[]string{}
+	for i:=0;i< b.N; i++ {
+		keyArray=append(keyArray, strconv.Itoa(i))
+	}
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		lc.Set(strconv.Itoa(i), a, 300)
+		lc.Set(keyArray[i], a, 300)
 	}
 }
 
@@ -378,16 +334,47 @@ func BenchmarkLocalReference_GetPointer(b *testing.B) {
 
 }
 
-func BenchmarkLocalReference_GetStruct(b *testing.B) {
-	lc := New()
-	a := Person{"Jack", 18, "America"}
-	lc.Set("1", a, 300)
-	var e Person
+func Benchmark_syncMap(b *testing.B) {
+	var m sync.Map
+	a := &Person{"Jack", 18, "America"}
+	for i:=0;i<100;i++{
+		m.Store(i,a)
+	}
+	
+
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		it, _ := lc.Get("1")
-		e = it.(Person)
+		p,_:=m.Load(1)
+		b := &Person{"Jack", 18, "America"}
+		m.Store(i,b)
+		_=p.(*Person)
 	}
-	log.Println(e)
+	
+}
+
+func Benchmark_map(b *testing.B) {
+	m:=map[int]int{}
+	for i:=0;i<100;i++{
+		m[i]=i
+	}
+	
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_=m[i]
+	}
+	
+}
+
+func Benchmark_time(b *testing.B) {
+	
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		time.Now().Unix()
+	}
+	
 }

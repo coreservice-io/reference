@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	MaxRecords            = 1000000
+	MaxRecords            = 5000000
 	MinRecords            = 10000
 	MaxTTLSecs            = 7200
 	RecycleIntervalSecs   = 5
@@ -17,21 +17,30 @@ const (
 )
 
 type Reference struct {
-	s     *sortedset.SortedSet
-	limit int64
+	s           *sortedset.SortedSet
+	limit       int64
+	nowTimeunix int64
 }
 
 func New() *Reference {
 	ref := &Reference{
-		s:     sortedset.Make(),
-		limit: MaxRecords,
+		s:           sortedset.Make(),
+		limit:       MaxRecords,
+		nowTimeunix: time.Now().Unix(),
 	}
 
 	ref.Recycle()
+	go func() {
+		for {
+			time.Sleep(1 * time.Second)
+			ref.nowTimeunix = time.Now().Unix()
+		}
+	}()
+
 	return ref
 }
 
-//RecycleOverLimitRatio of records will be recycled if the number of total keys exceeds this limit
+// RecycleOverLimitRatio of records will be recycled if the number of total keys exceeds this limit
 func (lf *Reference) SetMaxRecords(limit int64) {
 	if limit < MinRecords {
 		limit = MinRecords
@@ -39,25 +48,24 @@ func (lf *Reference) SetMaxRecords(limit int64) {
 	lf.limit = limit
 }
 
-//if not found or timeout => return nil,0
-//if found and not timeout =>return not_nil_pointer,left_secs
+// if not found or timeout => return nil,0
+// if found and not timeout =>return not_nil_pointer,left_secs
 func (lf *Reference) Get(key string) (value interface{}, ttl int64) {
 	//check expire
 	e, exist := lf.s.Get(key)
 	if !exist {
 		return nil, 0
 	}
-	nowTime := time.Now().Unix()
-	if e.Score <= nowTime {
+	if e.Score <= lf.nowTimeunix {
 		return nil, 0
 	}
-	return e.Value, e.Score - nowTime
+	return e.Value, 1
 }
 
-//if ttl < 0 just return and nothing changes
-//ttl is set to MaxTTLSecs if ttl > MaxTTLSecs
-//if record exist , "0" ttl changes nothing
-//if record not exist, "0" ttl is equal to "30" seconds
+// if ttl < 0 just return and nothing changes
+// ttl is set to MaxTTLSecs if ttl > MaxTTLSecs
+// if record exist , "0" ttl changes nothing
+// if record not exist, "0" ttl is equal to "30" seconds
 func (lf *Reference) Set(key string, value interface{}, ttlSecond int64) error {
 	if value == nil {
 		return errors.New("value can not be nil")
@@ -82,10 +90,10 @@ func (lf *Reference) Set(key string, value interface{}, ttlSecond int64) error {
 		if !exist {
 			ttlLeft = 30
 		}
-		expireTime = time.Now().Unix() + ttlLeft
+		expireTime = lf.nowTimeunix + ttlLeft
 	} else {
 		//new expire
-		expireTime = time.Now().Unix() + ttlSecond
+		expireTime = lf.nowTimeunix + ttlSecond
 	}
 	lf.s.Add(key, expireTime, value)
 	return nil
@@ -101,7 +109,7 @@ func (lf *Reference) ttl(key string) (int64, bool) {
 	if !exist {
 		return 0, false
 	}
-	ttl := e.Score - time.Now().Unix()
+	ttl := e.Score - lf.nowTimeunix
 	if ttl <= 0 {
 		return 0, false
 	}
@@ -125,19 +133,19 @@ func (lf *Reference) GetLen() int64 {
 	return int64(lf.s.Len())
 }
 
-func (lf *Reference) SetRand(key string, ttlSecond int64) string {
-	rs := GenRandStr(20)
-	lf.Set(key, rs, ttlSecond)
-	return rs
-}
+// func (lf *Reference) SetRand(key string, ttlSecond int64) string {
+// 	rs := GenRandStr(20)
+// 	lf.Set(key, rs, ttlSecond)
+// 	return rs
+// }
 
-func (lf *Reference) GetRand(key string) string {
-	v, _ := lf.Get(key)
-	if v == nil {
-		return ""
-	}
-	return v.(string)
-}
+// func (lf *Reference) GetRand(key string) string {
+// 	v, _ := lf.Get(key)
+// 	if v == nil {
+// 		return ""
+// 	}
+// 	return v.(string)
+// }
 
 func safeInfiLoop(todo func(), onPanic func(err interface{}), interval int64, redoDelaySec int64) {
 	runChannel := make(chan struct{})

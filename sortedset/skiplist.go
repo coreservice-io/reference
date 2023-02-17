@@ -2,7 +2,6 @@ package sortedset
 
 import (
 	"math/rand"
-	"sync"
 )
 
 const (
@@ -35,7 +34,7 @@ type skiplist struct {
 	tail   *node
 	length int32
 	level  int16
-	lock   sync.Mutex
+	// lock   sync.Mutex
 }
 
 func makeNode(level int16, score int64, member string) *node {
