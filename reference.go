@@ -120,7 +120,7 @@ func (lf *Reference) Recycle() {
 	time.Sleep(500 * time.Millisecond)
 	safeInfiLoop(func() {
 		//remove expired keys
-		lf.s.RemoveByScore(time.Now().Unix())
+		lf.s.RemoveByScore(lf.nowTimeunix)
 		//check overlimit
 		if lf.s.Len() >= lf.limit {
 			deleteCount := (lf.s.Len() - lf.limit) + int64(float64(lf.limit)*RecycleOverLimitRatio)
@@ -132,20 +132,6 @@ func (lf *Reference) Recycle() {
 func (lf *Reference) GetLen() int64 {
 	return int64(lf.s.Len())
 }
-
-// func (lf *Reference) SetRand(key string, ttlSecond int64) string {
-// 	rs := GenRandStr(20)
-// 	lf.Set(key, rs, ttlSecond)
-// 	return rs
-// }
-
-// func (lf *Reference) GetRand(key string) string {
-// 	v, _ := lf.Get(key)
-// 	if v == nil {
-// 		return ""
-// 	}
-// 	return v.(string)
-// }
 
 func safeInfiLoop(todo func(), onPanic func(err interface{}), interval int64, redoDelaySec int64) {
 	runChannel := make(chan struct{})
